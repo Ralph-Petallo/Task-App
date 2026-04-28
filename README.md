@@ -1,3 +1,3 @@
-# Task-App 👋
+# Task-App
 ----
 For project purposes only.

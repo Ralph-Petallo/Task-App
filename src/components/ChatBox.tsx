@@ -1,71 +1,81 @@
 import React, { useState } from 'react';
-import {
-    FlatList,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+import { FlatList, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useChat } from '../hooks/useChat';
 
-export default function ChatBox({ tasks }: any) {
-    const { messages, sendMessage, loading } = useChat(tasks);
-    const [input, setInput] = useState('');
+interface ChatBoxProps {
+  todoData: {
+    active: any[];
+    finished: any[];
+    trashed: any[];
+  };
+}
 
-    const handleSend = () => {
-        sendMessage(input);
-        setInput('');
-    };
+export default function ChatBox({ todoData }: ChatBoxProps) {
+  const { messages, sendMessage, loading } = useChat(todoData);
+  const [input, setInput] = useState('');
 
-    return (
-        <View style={{ flex: 1, padding: 10 }}>
-            <FlatList
-                data={messages}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <View
-                        style={{
-                            alignSelf:
-                                item.sender === 'user' ? 'flex-end' : 'flex-start',
-                            backgroundColor:
-                                item.sender === 'user' ? '#4CAF50' : '#eee',
-                            padding: 10,
-                            marginVertical: 5,
-                            borderRadius: 10,
-                            maxWidth: '80%',
-                        }}
-                    >
-                        <Text>{item.text}</Text>
-                    </View>
-                )}
-            />
+  const handleSend = () => {
+    if (input.trim() === '') return;
+    sendMessage(input);
+    setInput('');
+  };
 
-            <TextInput
-                value={input}
-                onChangeText={setInput}
-                placeholder="Ask your AI buddy..."
-                style={{
-                    borderWidth: 1,
-                    padding: 10,
-                    marginTop: 10,
-                    borderRadius: 8,
-                }}
-            />
+  return (
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+      style={{ flex: 1, padding: 10 }}
+    >
+      <FlatList
+        data={messages}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View
+            style={{
+              alignSelf: item.sender === 'user' ? 'flex-end' : 'flex-start',
+              backgroundColor: item.sender === 'user' ? '#4CAF50' : '#e0e0e0',
+              padding: 12,
+              marginVertical: 5,
+              borderRadius: 15,
+              maxWidth: '85%',
+            }}
+          >
+            <Text style={{ color: item.sender === 'user' ? '#fff' : '#000' }}>
+              {item.text}
+            </Text>
+          </View>
+        )}
+      />
 
-            <TouchableOpacity
-                onPress={handleSend}
-                style={{
-                    backgroundColor: '#4CAF50',
-                    padding: 12,
-                    marginTop: 8,
-                    borderRadius: 8,
-                    alignItems: 'center',
-                }}
-            >
-                <Text style={{ color: '#fff' }}>
-                    {loading ? 'Thinking...' : 'Send'}
-                </Text>
-            </TouchableOpacity>
-        </View>
-    );
+      <View style={{ marginBottom: 20 }}>
+        <TextInput
+          value={input}
+          onChangeText={setInput}
+          placeholder="Ask about your tasks..."
+          style={{
+            borderWidth: 1,
+            borderColor: '#ddd',
+            padding: 12,
+            borderRadius: 25,
+            backgroundColor: '#fff',
+          }}
+        />
+
+        <TouchableOpacity
+          onPress={handleSend}
+          disabled={loading}
+          style={{
+            backgroundColor: loading ? '#aaa' : '#4CAF50',
+            padding: 12,
+            marginTop: 8,
+            borderRadius: 25,
+            alignItems: 'center',
+          }}
+        >
+          <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+            {loading ? 'Thinking...' : 'Send Message'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
+  );
 }

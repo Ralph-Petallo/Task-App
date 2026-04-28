@@ -7,13 +7,7 @@ type Message = {
   sender: 'user' | 'bot';
 };
 
-type Task = {
-  id: number;
-  title: string;
-  completed: boolean;
-};
-
-export const useChat = (tasks: Task[]) => {
+export const useChat = (todoData: { active: any[]; finished: any[]; trashed: any[] }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -29,10 +23,11 @@ export const useChat = (tasks: Task[]) => {
     setMessages(prev => [...prev, userMsg]);
     setLoading(true);
 
-    const reply = await sendMessageToGemini(text, tasks);
+    // Pass the full todoData object
+    const reply = await sendMessageToGemini(text, todoData);
 
     const botMsg: Message = {
-      id: Date.now().toString() + '_bot',
+      id: (Date.now() + 1).toString() + '_bot',
       text: reply,
       sender: 'bot',
     };
@@ -41,9 +36,5 @@ export const useChat = (tasks: Task[]) => {
     setLoading(false);
   };
 
-  return {
-    messages,
-    sendMessage,
-    loading,
-  };
+  return { messages, sendMessage, loading };
 };
